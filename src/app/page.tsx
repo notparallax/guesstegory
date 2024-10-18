@@ -48,7 +48,7 @@ export default observer(function Home() {
 
       </div>
       
-      <KeyboardSection/>
+      <KeyboardSection store={store} />
       <Footer/>
       word: {store.correctWord} 
       <br/>
