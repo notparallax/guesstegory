@@ -1,20 +1,57 @@
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import Wordle from "@/components/Wordle";
-import CountryGuesserByOutline from "@/components/CountryGuesserByOutline";
+"use client";
 
-export default (function Home() {
-  
+import { useEffect } from "react";
+import { observer, useLocalObservable } from "mobx-react-lite";
+
+import GridSection from "../components/GridSection";
+import KeyboardSection from "../components/KeyboardSection";
+import PuzzleStore from "../../store/PuzzleStore";
+
+export default observer(function Wordle() {
+  const store = useLocalObservable(() => PuzzleStore);
+  useEffect(() => {
+    store.init();
+    window.addEventListener('keyup', store.handleKeyup);
+    return () => {
+      window.removeEventListener('keyup', store.handleKeyup);
+    };
+  }, []);
   return (
     
     <>
     <div className="flex flex-col justify-center items-center h-screen w-screen bg-slate-900 ">
-      <Header/>
-      <div >
-      <CountryGuesserByOutline/>
+     
+      {
+        store.guesses.map((_, i) => {
+          return (
+            <GridSection 
+            key={i} 
+            correctWord={store.correctWord} 
+            guess={store.guesses[i]} 
+            isAlreadyGuessed={i < store.guessCount}
+            />
+          );
+        })
+      }
+      <div>
+      {store.won && <div className="text-4xl text-green-500">You win!</div>}
+      {store.lost && <div className="text-4xl text-red-500">You lose!</div>}
+      {
+        (store.won || store.lost) && (
+          <button onClick={store.init}>
+            <span className="text-xl">Play again</span>
+          </button>
+        )
+      }
+
       </div>
-      {/* <Wordle/> */}
-      <Footer/>
+      
+      <KeyboardSection store={store} />
+      
+      word: {store.correctWord} 
+      <br/>
+      guesses: {JSON.stringify(store.guesses)}
+
     </div>
       
     </>
